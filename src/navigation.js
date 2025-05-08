@@ -2,7 +2,7 @@ import os from 'node:os';
 import { resolve, extname } from 'node:path';
 import { promises as fs } from 'node:fs';
 
-let currentDir = os.homedir();
+export let currentDir = os.homedir();
 
 export function printCurrentDirectory() {
   console.log(`You are currently in ${currentDir}`);

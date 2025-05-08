@@ -1,18 +1,8 @@
-import { createInterface } from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
 import { up, ls, printCurrentDirectory, cd } from './src/navigation.js';
+import { cat } from './src/operations.js';
+import { getName, rl } from './src/utils.js';
 
-const rl = createInterface({ input, output, prompt: '>> '});
 let username;
-
-async function getName() {
-  const username = await rl.question('Enter your username: ');
-
-  if (!username)
-    throw new Error('Username is necessary');
-
-  return username;    
-}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -25,6 +15,8 @@ async function main() {
 }
 
 rl.on('line', async (line) => {
+  console.log('get line: ', line);
+
   if (line === '.exit') {
     console.log(`Thank you for using File Manager, ${username}, goodbye!`);
     process.exit();
@@ -48,6 +40,9 @@ rl.on('line', async (line) => {
         await cd(args && args[0]);
         break;
       }
+      case 'cat':
+        await cat(args && args[0]);
+        break;
       default:
         console.log('No such command. Try another');
         break;
