@@ -47,3 +47,26 @@ export async function ls() {
 
   printCurrentDirectory();
 }
+
+export async function cd(path) {
+  try {
+    const newDir = resolve(currentDir, path);
+
+    const stat = await fs.stat(newDir);
+
+    if (!stat.isDirectory()) {
+      console.error(`'${path}' is not a directory.`);
+      printCurrentDirectory();
+      return;
+    }
+
+    currentDir = newDir;
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.error(`Directory '${path}' does not exist.`);
+    } else {
+      console.error('Error changing directory:', err.message);
+    }
+  }
+  printCurrentDirectory();
+}

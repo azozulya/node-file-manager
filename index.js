@@ -1,8 +1,8 @@
 import { createInterface } from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { up, ls, printCurrentDirectory } from './src/navigation.js';
+import { up, ls, printCurrentDirectory, cd } from './src/navigation.js';
 
-const rl = createInterface({ input, output, prompt: '>>'});
+const rl = createInterface({ input, output, prompt: '>> '});
 let username;
 
 async function getName() {
@@ -25,33 +25,46 @@ async function main() {
 }
 
 rl.on('line', async (line) => {
-  console.log(`Received: ${line}`);
-  switch (line) {
-    case 'up':
-      up();
-      break;
-    case 'ls': {
-      rl.pause();
-      await ls();
-      rl.prompt();
-      break;
-    }
-    default:
-      console.log('default');
-      break;
-  }
-  
-   
   if (line === '.exit') {
     console.log(`Thank you for using File Manager, ${username}, goodbye!`);
     process.exit();
   }
-});
 
+  rl.pause();  
+
+  const [command, ...args] = line.trim().split(' ');
+  console.log('args: ', args);
+
+  try {
+    switch (command) {
+      case 'up':
+        up();
+        break;
+      case 'ls': {
+        await ls();
+        break;
+      }
+      case 'cd': {
+        await cd(args && args[0]);
+        break;
+      }
+      default:
+        console.log('No such command. Try another');
+        break;
+    }
+    rl.prompt();
+  } catch (err) {
+    console.error('Command error:', err.message);
+  }
+});
 
 process.on('SIGINT', () => {
   console.log(`Thank you for using File Manager, ${username}, goodbye!`);
   process.exit();
 });
 
-main();
+try {
+  await main();
+} catch (err) {
+  console.error('ERROR:', err.message);
+}
