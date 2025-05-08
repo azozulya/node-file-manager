@@ -1,45 +1,51 @@
-import * as readline from 'node:readline/promises';
-import { cwd, stdin as input, stdout as output } from 'node:process';
+import { createInterface } from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
+import { up, ls, printCurrentDirectory } from './src/navigation.js';
 
-const rl = readline.createInterface({ input, output });
-
+const rl = createInterface({ input, output, prompt: '>>'});
 let username;
 
-function printCurrentDirectory() {
-  console.log(`You are currently in ${cwd()}`);
-}
-
 async function getName() {
-  username = await rl.question('Enter your username: ');
+  const username = await rl.question('Enter your username: ');
 
-  if (username){
-    console.log(`Welcome to the File Manager, ${username}!`);
-    printCurrentDirectory();
-  } else
-    throw new Error('Username is necessary')
+  if (!username)
+    throw new Error('Username is necessary');
+
+  return username;    
 }
 
 async function main() {
   const args = process.argv.slice(2);
   const usernameArg = args.find(arg => arg.startsWith('--username='));
 
-  if (usernameArg) {
-    username = usernameArg.split('=')[1];
-    console.log(`Welcome to the File Manager, ${username}!`);
-    printCurrentDirectory();
-    return;
-  } 
+  username = usernameArg ? usernameArg.split('=')[1] : await getName();  
   
-  await getName();
+  console.log(`Welcome to the File Manager, ${username}!`);
+  printCurrentDirectory();
 }
 
-rl.on('line', (input) => {
-  if (input === '.exit') {
+rl.on('line', async (line) => {
+  console.log(`Received: ${line}`);
+  switch (line) {
+    case 'up':
+      up();
+      break;
+    case 'ls': {
+      rl.pause();
+      await ls();
+      rl.prompt();
+      break;
+    }
+    default:
+      console.log('default');
+      break;
+  }
+  
+   
+  if (line === '.exit') {
     console.log(`Thank you for using File Manager, ${username}, goodbye!`);
     process.exit();
   }
-
-  printCurrentDirectory(); 
 });
 
 
