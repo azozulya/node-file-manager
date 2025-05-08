@@ -1,5 +1,5 @@
 import { up, ls, printCurrentDirectory, cd } from './src/navigation.js';
-import { cat } from './src/operations.js';
+import { add, cat, mkdir } from './src/files.js';
 import { getName, rl } from './src/utils.js';
 
 let username;
@@ -32,16 +32,20 @@ rl.on('line', async (line) => {
       case 'up':
         up();
         break;
-      case 'ls': {
+      case 'ls': 
         await ls();
-        break;
-      }
-      case 'cd': {
+        break;      
+      case 'cd': 
         await cd(args && args[0]);
-        break;
-      }
+        break;      
       case 'cat':
         await cat(args && args[0]);
+        break;
+      case 'add':
+        await add(args && args[0]);
+        break;
+      case 'mkdir':
+        await mkdir(args && args[0]);
         break;
       default:
         console.log('No such command. Try another');
