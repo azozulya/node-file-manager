@@ -1,6 +1,6 @@
 import { up, ls, printCurrentDirectory, cd } from './src/navigation.js';
-import { add, cat, mkdir } from './src/files.js';
-import { getName, rl } from './src/utils.js';
+import { add, cat, copy, mkdir, moveFile, removeFile, rename } from './src/files.js';
+import { getName, printErrorMessage, rl } from './src/utils.js';
 
 let username;
 
@@ -15,29 +15,26 @@ async function main() {
 }
 
 rl.on('line', async (line) => {
-  console.log('get line: ', line);
-
   if (line === '.exit') {
     console.log(`Thank you for using File Manager, ${username}, goodbye!`);
     process.exit();
   }
 
-  rl.pause();  
+  rl.pause();
 
   const [command, ...args] = line.trim().split(' ');
-  console.log('args: ', args);
 
   try {
     switch (command) {
       case 'up':
         up();
         break;
-      case 'ls': 
+      case 'ls':
         await ls();
-        break;      
-      case 'cd': 
+        break;
+      case 'cd':
         await cd(args && args[0]);
-        break;      
+        break;
       case 'cat':
         await cat(args && args[0]);
         break;
@@ -47,6 +44,38 @@ rl.on('line', async (line) => {
       case 'mkdir':
         await mkdir(args && args[0]);
         break;
+      case 'rn': {
+        if (!args || args.length < 2)
+          return printErrorMessage();
+
+        const [oldName, newName] = args;
+        rename(oldName, newName);
+        break;
+      }        
+      case 'cp':{
+        if (!args || args.length < 2)
+          return printErrorMessage();
+
+        const [filePath, destDir] = args;
+        copy(filePath, destDir);
+        break;
+      }
+      case 'mv': {
+        if (!args || args.length < 2)
+          return printErrorMessage();
+
+        const [filePath, destDir] = args;
+        moveFile(filePath, destDir);
+        break;
+      }
+      case 'rm': {
+        if (!args)
+          return printErrorMessage('Add path to file to remove it');
+
+          const [filePath] = args;
+          removeFile(filePath);
+          break;
+        }
       default:
         console.log('No such command. Try another');
         break;

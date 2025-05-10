@@ -12,4 +12,6 @@ export async function getName() {
   return username;
 }
 
-
+export function printErrorMessage(message = 'Add arguments') {
+  throw new Error(`Invalid input. ${message}`);
+}
